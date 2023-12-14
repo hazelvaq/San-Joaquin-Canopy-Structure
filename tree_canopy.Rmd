@@ -101,12 +101,12 @@ chm <- dsm - dtm
 A map of the varying heights can be produced to visualize the CHM.
 ```{r warning=FALSE, message=FALSE, error=FALSE}
 # test if the vegetation location CRS matches the Lidar CRS
-st_crs(veg_loc) == st_crs(chm)
+#st_crs(veg_loc) == st_crs(chm)
 
 # Generate plot
 tm_shape(chm) +
   tm_raster() +
-  tm_shape(plot_centroids) +
+  tm_shape(veg_loc) +
   tm_polygons()
 ```
 The maximum tree height for Lidar and on-the-ground field surveys are calculated
@@ -145,6 +145,7 @@ ggplot(heights, aes(y=chm_height, x= survey_height)) +
   ylab("Maximum Lidar Height (m)")
 
 ```
+
 Lidar estimates are somewhat on par with the measured tree heights. Except it tends
 to overestimate tree heights for smaller trees. And underestimate tree heights for 
 larger trees. This could be due to humar errors in on-the-ground tree observation. 
