@@ -17,7 +17,7 @@ California. This project was completed in R. The steps of this project include:
 # Citations
 Data was obtained from The National Science Foundation's [National Ecological Observatory Network (NEON)](https://www.neonscience.org/about).
 This project is based on [materials](https://www.neonscience.org/resources/learning-hub/tutorials/introduction-light-detection-and-ranging-lidar-explore-point) developed by Edmund Hart, Leah Wasser, and Donal O'Leary for NEON.
-
+Data is not included in this repository and is included in the `.gitignore`. 
 # File Structure
 ```markdown
 ├── data
