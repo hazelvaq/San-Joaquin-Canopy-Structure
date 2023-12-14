@@ -7,6 +7,7 @@
 
 
 # File Structure
+```markdown
 ├── data
 │   ├── PlotCentroids
 │   │   ├── SJERPlotCentroids_Buffer.dbf
@@ -25,3 +26,4 @@
 ├── San-Joaquin-Canopy-Structure.Rproj
 ├── tree_canopy.html
 └── tree_canopy.Rmd
+```
