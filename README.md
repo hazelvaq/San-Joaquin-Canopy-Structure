@@ -5,7 +5,7 @@
 [*Lidar Canopy Image*](https://resilience-blog.com/2022/07/06/how-we-can-better-understand-our-forest-ecosystems-with-laser-scanning/)
 
 
-This project analyzes the accuracy of Landsat tree canopy height by comparing it on-the-ground field surveys. The scope of area is the San Joaquin Experimental Range in 
+This project analyzes the accuracy of Landsat tree canopy height by comparing it to on-the-ground field surveys. The scope of area is the San Joaquin Experimental Range in 
 California. This project was completed in R. The steps of this project include:
 
 - raster manipulation
