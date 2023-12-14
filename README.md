@@ -3,7 +3,7 @@
 
 <img src="https://github.com/hazelvaq/San-Joaquin-Canopy-Structure/assets/108312152/87ad5ced-3346-478d-afd0-c27a8565afcb" width="800" height="400">
 
-[*Landsat Canopy Image*](https://resilience-blog.com/2022/07/06/how-we-can-better-understand-our-forest-ecosystems-with-laser-scanning/)
+[*Lidar Canopy Image*](https://resilience-blog.com/2022/07/06/how-we-can-better-understand-our-forest-ecosystems-with-laser-scanning/)
 
 
 
