@@ -1,0 +1,151 @@
+---
+title: 'San Joaquin Canopy Structure'
+author: "{Hazel Vaquero}"
+date: "2023-12-14"
+output:
+    html_document:
+      print_df: paged
+      toc: yes
+      toc_depth: 4
+      toc_float: yes
+---
+
+```{r setup, include=FALSE,message=FALSE,error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+
+Lidar, or Light Detection And Ranging, is one of many remote sensing methods that
+has the ability to penetrate thick vegetation to gather surface elevation data[^1]. 
+It plays an important role in estimating tree canopy structure (tree height) and
+can reduce the funds and time for on-the-ground field surveys[^2].
+ 
+In this project I will study the canopy structure (tree height) at the 
+San Joaquin Experimental Range in California. I will compare the tree height
+estimates of Lidar data NEON to on-the-ground field surveys. Thus providing 
+evidence of the benefit of using Lidar as a replacement to field surveys. 
+
+[^1]: Lidar. Lidar | NSF NEON | Open Data to Understand our Ecosystems. (n.d.). https://www.neonscience.org/data-collection/lidar 
+
+[^2]: Frank Hanssen, David N. Barton, Zander S. Venter, Megan S. Nowell, Zofie Cimburova,
+Utilizing LiDAR data to map tree canopy for urban ecosystem extent and condition accounts in Oslo,
+Ecological Indicators, Volume 130,2021, 108007, ISSN 1470-160X, https://doi.org/10.1016/j.ecolind.2021.108007.
+
+## Steps
+
+- create canopy height model (CHM)
+- extract raster data
+- data wrangling
+- map creation
+
+## Data
+
+**Lidar data**
+
+The National Science Foundation's [National Ecological Observatory Network (NEON)](https://www.neonscience.org/about) collects standardized, open-access ecological data at 81 freshwater and terrestrial field sites across the country. They periodically collect Lidar data at the sites and have an extensive
+database of on-the-ground surveys. 
+
+This project requires their data on:
+- Digital surface model (DSM) `SJER2013_DSM.tif`
+- Digital terrain model (DTM) `SJER2013_DTM.tif`
+- Vegetation survey location  `SJERPlotCentroids_Buffer.shp`
+- Measures for individual data `D17_2013_vegStr.csv`
+
+This project is based on [materials](https://www.neonscience.org/resources/learning-hub/tutorials/introduction-light-detection-and-ranging-lidar-explore-point) developed by Edmund Hart, Leah Wasser, and Donal O'Leary for NEON.
+
+
+## Prepare Data
+
+Load all necessary packages and data. 
+```{r load-packages, warning=FALSE, message=FALSE}
+# Libraries
+library(terra)
+library(sf)
+library(tidyverse)
+library(tmap)
+library(here)
+
+# Keep all character strings as characters
+options(stringsAsFactors=FALSE)
+
+# Data import
+# Lidar
+# digital surface model (DSM)
+dsm <- rast("data/SJER2013_DSM.tif")
+
+# digital terrain model (DTM)
+dtm <- rast("data/SJER2013_DTM.tif")
+
+# read in vegetation survey location
+veg_loc <- st_read("data/PlotCentroids/SJERPlotCentroids_Buffer.shp")
+
+# read in vegetation data
+veg_surveys <- read.csv("data/VegetationData/D17_2013_vegStr.csv")
+```
+
+An important step before the analysis is to determine if the the DSM and DTM data have the same resolution, position, and extent.
+
+```{r, warning=FALSE, message=FALSE}
+# check DSM and DTM for equal resolution, position, and extent
+test_raster <- c(dsm, dtm)
+```
+
+The next step is to create the canopy height model (CHM). This will represent
+the height of all objects.
+```{r compute-chm}
+# Canopy height model
+chm <- dsm - dtm
+```
+
+A map of the varying heights can be produced to visualize the CHM.
+```{r warning=FALSE, message=FALSE, error=FALSE}
+# test if the vegetation location CRS matches the Lidar CRS
+st_crs(veg_loc) == st_crs(chm)
+
+# Generate plot
+tm_shape(chm) +
+  tm_raster() +
+  tm_shape(plot_centroids) +
+  tm_polygons()
+```
+The maximum tree height for Lidar and on-the-ground field surveys are calculated
+and joined to be compared. 
+
+```{r load-surveys}
+# Maximum tree height of field survey
+veg_surveys <- veg_surveys %>%
+  group_by(plotid) %>%
+  summarise("survey_height" = max(stemheight, na.rm = TRUE))
+
+# Maximum tree height of CHM
+extract_chm_height <- terra::extract(chm, veg_loc, fun = max) %>%
+  rename(chm_height = SJER2013_DSM) %>%
+  select(chm_height)
+
+# Join tree height estimates
+heights <- cbind(veg_loc, extract_chm_height) %>%
+  left_join(.,veg_surveys, by = c("Plot_ID" = "plotid"))
+```
+
+
+## Visualization
+
+The two methods (Lidar and on-the-ground surveys) are compared on a line plot.
+A regression line of best fit with confidence is also included to compare the
+overall fit. 
+
+```{r}
+ggplot(heights, aes(y=chm_height, x= survey_height)) +
+  geom_abline(slope=1, intercept=0, alpha=.5, lty=2) + 
+  geom_point() +
+  geom_smooth(method = lm) + # add regression line and confidence interval
+  ggtitle("Comparing Tree Height Measurement") +
+  xlab("Maximum Measured Height (m)") +
+  ylab("Maximum Lidar Height (m)")
+
+```
+Lidar estimates are somewhat on par with the measured tree heights. Except it tends
+to overestimate tree heights for smaller trees. And underestimate tree heights for 
+larger trees. This could be due to humar errors in on-the-ground tree observation. 
+Or Lidar is misjudging the elevation of the ground or misidentifying tree canopies.
