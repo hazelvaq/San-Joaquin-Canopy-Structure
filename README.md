@@ -6,7 +6,7 @@
 
 
 This project analyzes the accuracy of Landsat tree canopy height by comparing it to on-the-ground field surveys. The scope of area is the San Joaquin Experimental Range in 
-California. This project was completed in R. The steps of this project include:
+California. This project was completed in R and the full code can be found in `tree_canopy.Rmd`. The steps of this project include:
 
 - raster manipulation
 - spatial joining
